@@ -1,0 +1,6 @@
+name: EagleQuestGUI
+version: '${project.version}'
+main: me.eagle.eaglequestgui.EagleQuestGUI
+depend:
+  - Citizens
+  - Quests

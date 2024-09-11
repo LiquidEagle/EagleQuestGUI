@@ -1,0 +1,6 @@
+name: EagleQuestGUI
+version: '1.0'
+main: me.eagle.eaglequestgui.EagleQuestGUI
+depend:
+  - Citizens
+  - Quests
