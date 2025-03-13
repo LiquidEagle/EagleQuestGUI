@@ -30,35 +30,16 @@ public class DisplayGUI extends PaginatedGUI {
 
     public DisplayGUI(EagleQuestGUI paramQuestsGUI, Quester paramQuester, UUID npc, LinkedList<BukkitQuest> npcQuests) {
         super(new GUI(paramQuester.getPlayer(), ((BukkitDependencies)paramQuestsGUI.getQuests().getDependencies()).getNpcName(npc) + "'s Quests |", Rows.TWO));
-//        for (byte b1 = 0; b1 < getGui().getRows().getSlots(); b1++) {
-//            if (getGui().getItemFor(b1) == null)
-//                setItem(b1, new Item("AIR"));
-//        }
         getGuiSettings().setFlankedArrows(true);
         ConcurrentSkipListSet<ItemSection> concurrentSkipListSet = new ConcurrentSkipListSet<>();
         int b2 = 0;
-
-
 
         for (BukkitQuest bukkitQuest : npcQuests) { // just doing quests (so 2)
             if (bukkitQuest.getGUIDisplay() != null) {
                 ItemStack display = bukkitQuest.getGUIDisplay().clone();
                 ItemMeta meta = display.getItemMeta();
-
                 String rewards = String.valueOf(bukkitQuest.getRewards().getMoney());
-
-//                Iterator var8 =  paramQuester.getCurrentObjectives(bukkitQuest, false,false).iterator();
-//
-//                String message = "";
-//                while(var8.hasNext()) {
-//                    Objective obj = (Objective)var8.next();
-//                    BukkitObjective objective = (BukkitObjective)obj;
-//                    message = BukkitLang.BukkitFormatToken.convertString(paramQuester.getPlayer(), objective.getMessage());
-//                    }
-
-
                 LinkedList<String> lines = BukkitMiscUtil.makeLines(" ", " ", 40, ChatColor.DARK_GREEN);
-
 
                 // ~ Initialise NPC Registry
                 NPCRegistry npcRegistry = paramQuestsGUI.getCitizens().getNPCRegistry();
@@ -73,6 +54,9 @@ public class DisplayGUI extends PaginatedGUI {
 
                     // Talk to Task
                     LinkedList<UUID> talkTargets = bukkitQuest.getStage(i).getNpcsToInteract();
+
+                    // Kill NPC Task
+                    LinkedList<UUID> killTargets = bukkitQuest.getStage(i).getNpcsToKill();
 
                     // ~ Check if there are any delivery tasks
                     if (itemsDeliver != null && !itemsDeliver.isEmpty() && deliveryTargets != null && !deliveryTargets.isEmpty()) {
@@ -98,7 +82,8 @@ public class DisplayGUI extends PaginatedGUI {
                             if (itemMeta != null && itemMeta.hasDisplayName()) {
                                 itemName = itemMeta.getDisplayName(); // Use custom display name
                             } else {
-                                itemName = ItemNames.lookupWithAmount(item); // Use default material name
+                                 // Use default material name
+                                itemName = item.getAmount() + "x " +  ItemNames.capitalize(item.getType().name(), "_");
                             }
 
                             // Add the item to the list
@@ -122,6 +107,22 @@ public class DisplayGUI extends PaginatedGUI {
                         }
                     }
 
+                    // ~ Check if there are any kill tasks
+                    if (killTargets != null && !killTargets.isEmpty()) {
+                        UUID lastNpcTalk2 = null; // Keep track of the last NPC for talk tasks
+
+                        // ~ Iterate through the kill NPCs
+                        for (int j = 0; j < killTargets.size(); j++) {
+                            UUID currentNpc2 = killTargets.get(j); // Get the current NPC for this task
+
+                            // Only show the NPC name if it's different from the last NPC
+                            if (!currentNpc2.equals(lastNpcTalk2)) {
+                                lines.add(ChatColor.DARK_GREEN + "Kill " + npcRegistry.getByUniqueId(currentNpc2).getName());
+                                lastNpcTalk2 = currentNpc2; // Update last NPC to the current one
+                            }
+                        }
+                    }
+
                     // Get the start message and check for null
                     String startMessage = bukkitQuest.getStage(i).getStartMessage();
 
@@ -141,18 +142,9 @@ public class DisplayGUI extends PaginatedGUI {
                     }
                 }
 
-
-
-
-
-//                if (qlore.size() > 0) {lines.addAll(qlore);}
                 lines.add(" ");
                 lines.add(ChatColor.GOLD + "Rewards:");
                 lines.add(ChatColor.YELLOW + "$" + rewards);
-//                for (int i = 0; i < obj.toArray().length; i++) {
-//                    lines.add(obj.get(i).getMessage());
-//                }
-
 
                 meta.setLore(lines);
                 meta.addItemFlags(ItemFlag.values());
@@ -161,12 +153,7 @@ public class DisplayGUI extends PaginatedGUI {
                 bukkitQuest.setGUIDisplay(display);
 
                 ItemStack questDisplay = bukkitQuest.prepareDisplay((BukkitQuester) paramQuester);
-                //questDisplay.addUnsafeEnchantment(Enchantment.DURABILITY,1);
-
-
                 Item item = new Item(questDisplay);
-
-
                 List<String> list = item.getItemMeta().getLore();
 
                 if (list == null)
@@ -251,7 +238,6 @@ public class DisplayGUI extends PaginatedGUI {
         draw();
     }
 
-
     public void onOpen(InventoryOpenEvent paramInventoryOpenEvent) {}
 
     public void onClose(InventoryCloseEvent paramInventoryCloseEvent) {}
@@ -266,5 +252,3 @@ public class DisplayGUI extends PaginatedGUI {
         return Collections.emptyList();
     }
 }
-
-

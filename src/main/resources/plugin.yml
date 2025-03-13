@@ -1,6 +1,6 @@
 name: EagleQuestGUI
 version: '${project.version}'
 main: me.eagle.eaglequestgui.EagleQuestGUI
-depend:
-  - Citizens
-  - Quests
+depend: [Quests]
+softdepend: [Citizens]
+api-version: 1.13
